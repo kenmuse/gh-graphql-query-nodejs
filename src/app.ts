@@ -45,7 +45,7 @@ query ($orgname:String!, $endCursor: String){
                 nameWithOwner
                 description
                 url
-                collaborators(first: 100, after: $endCursor) {
+                collaborators(first: 100, after: null) {
                     edges {
                         permission
                         permissionSources {
@@ -111,6 +111,9 @@ do
     catch(error) {
         if (error instanceof GraphqlResponseError){
             console.error(error.message);
+        }
+        else {
+            console.error(JSON.stringify(error, null, prettySpaces));
         }
     }
 } while(endCursor != null && paginate)
