@@ -10,7 +10,7 @@ const argv = await _yargs(hideBin(process.argv))
   .option('token', {
     alias: 't',
     type: 'string',
-    description: 'GH Token with permissions: repo,admin:org,read:user'
+    description: 'GH PAT with repo,admin:org,read:user'
   })
   .option('org', {
     alias: 'o',
@@ -24,9 +24,9 @@ const argv = await _yargs(hideBin(process.argv))
     default: false
   })
   .option('paginate', {
-    alias: 'page',
+    alias: 'a',
     type: 'boolean',
-    description: 'Set to automatically follow top-level pages',
+    description: 'Automatically follow pages',
     default: true
   })
   .help()
