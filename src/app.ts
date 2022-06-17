@@ -20,7 +20,14 @@ const argv = await _yargs(hideBin(process.argv))
   .option('prettify', {
     alias: 'p',
     type: 'boolean',
-    description: 'Set to prettify the output'
+    description: 'Set to prettify the output',
+    default: false
+  })
+  .option('paginate', {
+    alias: 'page',
+    type: 'boolean',
+    description: 'Set to automatically follow top-level pages',
+    default: true
   })
   .help()
   .parseAsync();
@@ -28,6 +35,7 @@ const argv = await _yargs(hideBin(process.argv))
 const token = argv.token;
 const organization = argv.org;
 const prettySpaces = argv.prettify ? 2 : 0;
+const paginate = argv.paginate;
 
 const query = `
 query ($orgname:String!, $endCursor: String){
@@ -72,6 +80,12 @@ query ($orgname:String!, $endCursor: String){
             }
         }
     }
+    rateLimit {
+        limit
+        cost
+        remaining
+        resetAt
+    }
 }`
 
 const client = graphql.defaults({
@@ -80,18 +94,23 @@ const client = graphql.defaults({
     },
   });
 
-const variables = {
-    orgname: organization,
-    endCursor: null
-}
-
-try {
-    const result  = await client(query, variables) as any;
-    console.log(JSON.stringify(result, null, prettySpaces));
-    console.log(`Next page: ${result.organization.repositories.hasNextPage ? result.organization.repositories.endCursor : 'None' }`);
-}
-catch(error) {
-    if (error instanceof GraphqlResponseError){
-        console.error(error.message);
+var endCursor = null;
+do
+{
+    const variables = {
+        orgname: organization,
+        endCursor: endCursor
     }
-}
+
+    try {
+        const result  = await client(query, variables) as any;
+        console.log(JSON.stringify(result, null, prettySpaces));
+        endCursor = result.organization.repositories.pageInfo.hasNextPage ? result.organization.repositories.pageInfo.endCursor : null;
+        // console.log(`>> Next page: ${ endCursor ?? 'None' }`);
+    }
+    catch(error) {
+        if (error instanceof GraphqlResponseError){
+            console.error(error.message);
+        }
+    }
+} while(endCursor != null && paginate)
