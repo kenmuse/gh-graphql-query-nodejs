@@ -234,18 +234,36 @@ export interface TeamPermission {
     readonly permission: string;
 }
 
+/**
+ * The GraphQL query variables used to retrieve the user permissions.
+ */
 interface UserPermissionQueryVariables {
+
+    /** The name of the organization */
     readonly orgname: string;
+
+    /** The cursor to use for pagination of repository data */
     readonly endCursor: string | null;
+
+    /** The cursor to use for pagination of collaborator data */
     readonly innerCursor: string | null;
 }
 
+/** The available sort types for query results */
 type SortColumn = keyof typeof sortBy;
+
+/** Processes a specified sort direction for query results */
 const sortBy = {
     "user": (results: Array<UserPermissionSummary>) => results.sort((left, right) => left.handle.localeCompare(right.handle) || left.repository.localeCompare(right.repository)),
     "repository": (results: Array<UserPermissionSummary>) => results.sort((left, right) => left.repository.localeCompare(right.repository) || left.handle.localeCompare(right.handle))
 }
 
+/**
+ * Sorts the specified array of results by the specified sort column
+ * @param results the array of results to be sorted
+ * @param sortColumn the name of the primary sort column
+ * @returns the sorted array of results
+ */
 function sort(results: Array<UserPermissionSummary>, by: SortColumn): Array<UserPermissionSummary> {
     return sortBy[by](results);
 }
