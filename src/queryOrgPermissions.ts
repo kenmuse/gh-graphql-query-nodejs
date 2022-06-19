@@ -28,7 +28,7 @@ query ($orgname:String!, $endCursor: String, $innerCursor: String){
                 nameWithOwner
                 description
                 url
-                collaborators(first: 1, after: $innerCursor) {
+                collaborators(first: 100, after: $innerCursor) {
                     edges {
                         permission
                         permissionSources {
