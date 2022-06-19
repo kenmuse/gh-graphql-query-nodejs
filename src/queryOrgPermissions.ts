@@ -10,10 +10,19 @@ import { Organization, PageInfo, Repository, RepositoryCollaboratorConnection, R
  * @returns the results of the query
  */
 export async function execute(token: string, organization: string, paginate: boolean, sortBy: SortColumn): Promise<Array<UserPermissionSummary>> {
+    // Create the client
     const client = QueryClient.getClient(token);
+
+    // Define the initial query variables
     const variables = { orgname: organization, endCursor: null, innerCursor: null };
+
+    // Execute the query
     const results = await retrieveQueryResults(client, query, variables, paginate);
+
+    // Eliminate duplicate results
     const unique = getUniqueInstances(results);
+
+    // Return the sorted results
     return sort(unique, sortBy);
 }
 
