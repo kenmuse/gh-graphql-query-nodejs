@@ -1,5 +1,5 @@
 import * as QueryClient from './client.js';
-import { Organization, PageInfo, Repository, RepositoryCollaboratorEdge, Team } from '@octokit/graphql-schema';
+import { Organization, PageInfo, Repository, RepositoryCollaboratorConnection, RepositoryCollaboratorEdge, Team } from '@octokit/graphql-schema';
 
 /**
  * Executes the query and returns an array of unique user permissions.
@@ -86,22 +86,16 @@ async function retrieveQueryResults(client: QueryClient.IQueryClient,
     const results = new Array<UserPermissionSummary>();
 
     try {
-        // Get tge resykst
+        // Get the results
         const result = await client.query<{ organization: Organization }>(query, variables);
 
         let repositories = result.organization.repositories.nodes?.filter((node): node is Repository => node !== null) ?? [];
         for (const repo of repositories.filter(r => r !== null)) {
             const collaborators = repo.collaborators;
             if (collaborators != null) {
-                const edges = collaborators.edges?.filter((edge): edge is RepositoryCollaboratorEdge => edge !== null) ?? [];
-                for (const user of edges) {
-                    if (user) {
-                        const summary = createUserSummary(repo, user);
-                        results.push(summary);
-                    }
-                }
+                results.push(...processCollaborators(repo, collaborators));
 
-                 // Additional outer payloads
+                 // Additional inner payloads
                 results.push(...await processAdditionalPages(paginate, 
                     collaborators.pageInfo, 
                     client, 
@@ -121,6 +115,25 @@ async function retrieveQueryResults(client: QueryClient.IQueryClient,
         console.error(JSON.stringify(error));
         return [];
     }
+}
+
+/**
+ * Processes the collaborators of a repository and returns an array of UserPermissionSummaries
+ * @param collaborators the list of collaborators
+ * @param repo the repository
+ * @returns the user summaries
+ */
+function processCollaborators(repo: Repository, collaborators: RepositoryCollaboratorConnection) : Array<UserPermissionSummary> {
+    const summaries: Array<UserPermissionSummary> = [];
+    const edges = collaborators.edges?.filter((edge): edge is RepositoryCollaboratorEdge => edge !== null) ?? [];
+    for (const user of edges) {
+        if (user) {
+            const summary = createUserSummary(repo, user);
+            summaries.push(summary);
+        }
+    }
+
+    return summaries;
 }
 
 /**
@@ -145,7 +158,14 @@ function createUserSummary(repository: Repository, user: RepositoryCollaboratorE
     };
 }
 
-
+/**
+ * Processes additional pages of results and returns an array of UserPermissionSummaries
+ * @param paginate indicates whether to automatically process all pages of the results
+ * @param pageInfo the GraphQL page info response
+ * @param client the GraphQL client
+ * @param context the variables to be used in the query
+ * @returns the next page of results for the query, or an empty array if there are no more results
+ */
 async function processAdditionalPages(paginate: boolean, pageInfo: PageInfo, client: QueryClient.IQueryClient, context: UserPermissionQueryVariables ): Promise<Array<UserPermissionSummary>> {
     if (paginate
         && pageInfo.hasNextPage
