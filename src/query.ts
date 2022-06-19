@@ -1,3 +1,6 @@
+// Queries an organization for the permissions associated with each of its repositories
+// and returns the results.
+
 import * as QueryClient from './client.js';
 import { Organization, PageInfo, Repository, RepositoryCollaboratorConnection, RepositoryCollaboratorEdge, Team } from '@octokit/graphql-schema';
 

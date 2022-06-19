@@ -1,7 +1,7 @@
 'use strict';
 import * as args from './args.js';
 import * as format from './format.js';
-import * as query from './queryOrgPermissions.js';
+import * as query from './query.js';
 
 // Parse the command line arguments
 const options = await args.parseAsync(process.argv);
