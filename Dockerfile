@@ -1,16 +1,14 @@
-FROM node:16.14.2-alpine as build
+FROM node:16.15-alpine3.16 as build
 WORKDIR /usr
 COPY package.json ./
 COPY tsconfig.json ./
-COPY src ./src
-RUN ls -a
+COPY src ./
 RUN npm install
 RUN npm run build
 
-FROM node:16.14.2-alpine
+FROM node:16.15-alpine3.16
 WORKDIR /usr
 COPY package.json ./
 RUN npm install --only=production
 COPY --from=build /usr/dist .
-#RUN npm install pm2 -g
 CMD ["node","app.js"]

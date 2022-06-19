@@ -9,6 +9,8 @@
     },
     "dependencies": {
         "@octokit/graphql": "^4.8.0",
+        "@octokit/graphql-schema": "^10.73.0",
+        "csv-string": "^4.1.0",
         "node-fetch": "^3.2.6",
         "ts-node": "^10.8.1",
         "typescript": "^4.7.3",
