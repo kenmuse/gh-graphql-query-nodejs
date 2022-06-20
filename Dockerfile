@@ -2,7 +2,7 @@ FROM node:16.15-alpine3.16 as build
 WORKDIR /usr
 COPY package.json ./
 COPY tsconfig.json ./
-COPY src ./
+COPY src/ ./src/
 RUN npm install
 RUN npm run build
 
@@ -11,4 +11,4 @@ WORKDIR /usr
 COPY package.json ./
 RUN npm install --only=production
 COPY --from=build /usr/dist .
-CMD ["node","app.js"]
+ENTRYPOINT ["node","app.js"]
