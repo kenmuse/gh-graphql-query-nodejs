@@ -9,8 +9,14 @@ Running this application requires a GitHub personal access token (PAT) with the 
 - admin:org
 - read:user
 
+## Building the code
+Run `npm i` followed by `npm run build` to compile the TypeScript code to JavaScript in the `dist` folder.
+
 ## Usage
-The application can be used to query a list of users from the repositories in an organization. At a minimum, the organization name (`--org` or `-o`) and token (`--token` or `-t`) must be provided. The full set of options:
+The application can be run using `npm start --  [args]`. At a minimum, the organization name
+(`--org` or `-o`) and a personal access token (`--token` or `-t`) must be provided.
+
+The full set of options:
 
 | Argument     | Alias | Description                                        | Value                 |
 | ------------ | ----- | -------------------------------------------------- | ----------------------|
