@@ -5,7 +5,7 @@
     "private": true,
     "scripts": {
         "build": "tsc",
-        "start": "node dist/app.js -t $TOKEN -o $ORG"
+        "start": "node dist/app.js"
     },
     "dependencies": {
         "@octokit/graphql": "^4.8.0",

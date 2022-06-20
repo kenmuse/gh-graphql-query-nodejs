@@ -7,7 +7,11 @@ import * as query from './query.js';
 const options = await args.parseAsync(process.argv);
 
 // Execute the query
-const results = await query.execute(options.token, options.organization, options.paginate, options.sortBy)
+let results = await query.execute(options.token, options.organization, options.paginate, options.sortBy)
+
+if (!options.showAllUsers){
+    results = results.filter(user => user.permission === 'ADMIN');
+}
 
 // Format the results
 format.writeToConsole(results, options.format, options.spaces);

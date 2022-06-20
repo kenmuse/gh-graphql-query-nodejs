@@ -39,6 +39,12 @@ export async function parseAsync(args:string[]) : Promise<CommandLineArguments> 
             description: 'Automatically follow pages',
             default: true
         })
+        .option('all', {
+            alias: 'u',
+            type: 'boolean',
+            description: 'Show all users instead of just ADMIN',
+            default: false
+        })
         .option('format',{
             alias: 'f',
             type: 'string',
@@ -60,7 +66,8 @@ export async function parseAsync(args:string[]) : Promise<CommandLineArguments> 
         spaces: argv.prettify ? 2 : 0,
         paginate: argv.paginate,
         sortBy: argv.sort as "user" | "repository",
-        format: argv.format as "json" | "csv" | "table"
+        format: argv.format as "json" | "csv" | "table",
+        showAllUsers: argv.all
     }
 
     return result;
@@ -90,4 +97,7 @@ export interface CommandLineArguments {
 
     /** The format to use for results  */
     readonly format: "json" | "csv" | "table";
+
+    /** Indicates whether to show all users or only ADMIN users */
+    readonly showAllUsers: boolean;
 }
