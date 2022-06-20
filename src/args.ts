@@ -11,7 +11,8 @@ import { hideBin } from 'yargs/helpers';
  * @returns the command line argument values.
  */
 export async function parseAsync(args:string[]) : Promise<CommandLineArguments> {
-    const argv = await _yargs(hideBin(args))
+    const yargs = _yargs(hideBin(args));
+    const argv = await yargs
         .usage("Usage: $0 -t token -o organization")
         .showHelpOnFail(true)
         .demandOption(['token', 'org'])
@@ -33,13 +34,13 @@ export async function parseAsync(args:string[]) : Promise<CommandLineArguments> 
             description: 'Set to prettify the output',
             default: false
         })
-        .option('paginate', {
+        .option('allpages', {
             alias: 'a',
             type: 'boolean',
             description: 'Automatically follow pages',
             default: true
         })
-        .option('all', {
+        .option('allusers', {
             alias: 'u',
             type: 'boolean',
             description: 'Show all users instead of just ADMIN',
@@ -49,14 +50,17 @@ export async function parseAsync(args:string[]) : Promise<CommandLineArguments> 
             alias: 'f',
             type: 'string',
             choices: ['json', 'csv', 'table'],
+            description: 'The format used for results',
             default: 'json'
         })
         .option('sort',{
             alias: 's',
             type: 'string',
             choices: ['repository', 'user'],
+            description: 'The column to use for sorting results',
             default: 'repository'
         })
+        .wrap(yargs.terminalWidth())
         .help()
         .parseAsync();
     
@@ -64,10 +68,10 @@ export async function parseAsync(args:string[]) : Promise<CommandLineArguments> 
         token: argv.token ?? "",
         organization: argv.org ?? "",
         spaces: argv.prettify ? 2 : 0,
-        paginate: argv.paginate,
+        allPages: argv.allPages,
         sortBy: argv.sort as "user" | "repository",
         format: argv.format as "json" | "csv" | "table",
-        showAllUsers: argv.all
+        showAllUsers: argv.allUsers
     }
 
     return result;
@@ -90,7 +94,7 @@ export interface CommandLineArguments {
      *  Indicates whether to automatically retrieve additional
      *  pages of results from queries. 
      */
-    readonly paginate: boolean;
+    readonly allPages: boolean;
 
     /** The column to use for sorting the results. */
     readonly sortBy: "user" | "repository";

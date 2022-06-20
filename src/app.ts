@@ -7,7 +7,7 @@ import * as query from './query.js';
 const options = await args.parseAsync(process.argv);
 
 // Execute the query
-let results = await query.execute(options.token, options.organization, options.paginate, options.sortBy)
+let results = await query.execute(options.token, options.organization, options.allPages, options.sortBy)
 
 if (!options.showAllUsers){
     results = results.filter(user => user.permission === 'ADMIN');

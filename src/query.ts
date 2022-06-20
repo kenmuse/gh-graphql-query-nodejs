@@ -8,11 +8,11 @@ import { Organization, PageInfo, Repository, RepositoryCollaboratorConnection, R
  * Executes the query and returns an array of unique user permissions.
  * @param token the GitHub token
  * @param organization the GitHub organization
- * @param paginate true to automatically gather all pages of the results
+ * @param allPages true to automatically gather all pages of the results
  * @param sortBy the column to use for sorting the results
  * @returns the results of the query
  */
-export async function execute(token: string, organization: string, paginate: boolean, sortBy: SortColumn): Promise<Array<UserPermissionSummary>> {
+export async function execute(token: string, organization: string, allPages: boolean, sortBy: SortColumn): Promise<Array<UserPermissionSummary>> {
     // Create the client
     const client = QueryClient.getClient(token);
 
@@ -20,7 +20,7 @@ export async function execute(token: string, organization: string, paginate: boo
     const variables = { orgname: organization, endCursor: null, innerCursor: null };
 
     // Execute the query
-    const results = await retrieveQueryResults(client, query, variables, paginate);
+    const results = await retrieveQueryResults(client, query, variables, allPages);
 
     // Eliminate duplicate results
     const unique = getUniqueInstances(results);
@@ -88,13 +88,13 @@ query ($orgname:String!, $endCursor: String, $innerCursor: String){
  * @param client Represents the client to be used for the query
  * @param query The GraphQL query to be executed
  * @param variables The variables to be used in the query
- * @param paginate indicates whether to automatically return all pages of the results
+ * @param allPages indicates whether to automatically return all pages of the results
  * @returns the results of the query
  */
 async function retrieveQueryResults(client: QueryClient.IQueryClient,
     query: string,
     variables: UserPermissionQueryVariables,
-    paginate: boolean): Promise<Array<UserPermissionSummary>> {
+    allPages: boolean): Promise<Array<UserPermissionSummary>> {
     const results = new Array<UserPermissionSummary>();
 
     try {
@@ -108,7 +108,7 @@ async function retrieveQueryResults(client: QueryClient.IQueryClient,
                 results.push(...processCollaborators(repo, collaborators));
 
                  // Additional inner payloads
-                results.push(...await processAdditionalPages(paginate, 
+                results.push(...await processAdditionalPages(allPages, 
                     collaborators.pageInfo, 
                     client, 
                     Object.assign({}, variables, { innerCursor: collaborators.pageInfo.endCursor })));
@@ -116,7 +116,7 @@ async function retrieveQueryResults(client: QueryClient.IQueryClient,
         }
 
         // Additional outer payloads
-        results.push(...await processAdditionalPages(paginate, 
+        results.push(...await processAdditionalPages(allPages, 
             result.organization.repositories.pageInfo, 
             client, 
             Object.assign({}, variables, { endCursor: result.organization.repositories.pageInfo.endCursor, innerCursor: null })));
@@ -172,17 +172,17 @@ function createUserSummary(repository: Repository, user: RepositoryCollaboratorE
 
 /**
  * Processes additional pages of results and returns an array of UserPermissionSummaries
- * @param paginate indicates whether to automatically process all pages of the results
+ * @param allPages indicates whether to automatically process all pages of the results
  * @param pageInfo the GraphQL page info response
  * @param client the GraphQL client
  * @param context the variables to be used in the query
  * @returns the next page of results for the query, or an empty array if there are no more results
  */
-async function processAdditionalPages(paginate: boolean, pageInfo: PageInfo, client: QueryClient.IQueryClient, context: UserPermissionQueryVariables ): Promise<Array<UserPermissionSummary>> {
-    if (paginate
+async function processAdditionalPages(allPages: boolean, pageInfo: PageInfo, client: QueryClient.IQueryClient, context: UserPermissionQueryVariables ): Promise<Array<UserPermissionSummary>> {
+    if (allPages
         && pageInfo.hasNextPage
         && pageInfo.endCursor) {
-        const summaries = await retrieveQueryResults(client, query, context, paginate);
+        const summaries = await retrieveQueryResults(client, query, context, allPages);
         return summaries;
     }
 
