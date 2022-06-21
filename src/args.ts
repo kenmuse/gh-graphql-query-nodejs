@@ -68,10 +68,10 @@ export async function parseAsync(args:string[]) : Promise<CommandLineArguments> 
         token: argv.token ?? "",
         organization: argv.org ?? "",
         spaces: argv.prettify ? 2 : 0,
-        allPages: argv.allPages,
+        allPages: argv.allpages,
         sortBy: argv.sort as "user" | "repository",
         format: argv.format as "json" | "csv" | "table",
-        showAllUsers: argv.allUsers
+        showAllUsers: argv.allusers
     }
 
     return result;
