@@ -8,7 +8,7 @@
         "start": "node dist/app.js"
     },
     "dependencies": {
-        "@octokit/graphql": "^4.8.0",
+        "@octokit/graphql": "^8.2.0",
         "@octokit/graphql-schema": "^10.73.0",
         "csv-string": "^4.1.0",
         "node-fetch": "^3.2.6",
